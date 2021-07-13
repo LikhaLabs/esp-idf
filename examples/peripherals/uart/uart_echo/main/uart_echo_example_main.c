@@ -7,6 +7,7 @@
    CONDITIONS OF ANY KIND, either express or implied.
 */
 #include <stdio.h>
+#include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/uart.h"
@@ -25,19 +26,41 @@
  * - Pin assignment: see defines below (See Kconfig)
  */
 
-#define ECHO_TEST_TXD (CONFIG_EXAMPLE_UART_TXD)
-#define ECHO_TEST_RXD (CONFIG_EXAMPLE_UART_RXD)
 #define ECHO_TEST_RTS (UART_PIN_NO_CHANGE)
 #define ECHO_TEST_CTS (UART_PIN_NO_CHANGE)
 
-#define ECHO_UART_PORT_NUM      (CONFIG_EXAMPLE_UART_PORT_NUM)
-#define ECHO_UART_BAUD_RATE     (CONFIG_EXAMPLE_UART_BAUD_RATE)
+#define ECHO_UART_BAUD_RATE     921600
 #define ECHO_TASK_STACK_SIZE    (CONFIG_EXAMPLE_TASK_STACK_SIZE)
 
 #define BUF_SIZE (1024)
 
+SemaphoreHandle_t printf_Mutex;
+
+void print_hex(const uint8_t* buf, int len)
+{
+    int i;
+    for (i = 0; i < len; i++)
+    {
+        if (i > 0) printf(" ");
+        printf("%02X", buf[i]);
+    }
+    printf("\n");
+}
+
 static void echo_task(void *arg)
 {
+    int uart_num = *((int*) arg);
+
+    int tx =0, rx =0;
+
+    if (uart_num == 1) {
+        tx = 26;
+        rx = 27;
+    } else {
+        tx = 16;
+        rx = 17;
+    }
+
     /* Configure parameters of an UART driver,
      * communication pins and install the driver */
     uart_config_t uart_config = {
@@ -54,22 +77,37 @@ static void echo_task(void *arg)
     intr_alloc_flags = ESP_INTR_FLAG_IRAM;
 #endif
 
-    ESP_ERROR_CHECK(uart_driver_install(ECHO_UART_PORT_NUM, BUF_SIZE * 2, 0, 0, NULL, intr_alloc_flags));
-    ESP_ERROR_CHECK(uart_param_config(ECHO_UART_PORT_NUM, &uart_config));
-    ESP_ERROR_CHECK(uart_set_pin(ECHO_UART_PORT_NUM, ECHO_TEST_TXD, ECHO_TEST_RXD, ECHO_TEST_RTS, ECHO_TEST_CTS));
+    ESP_ERROR_CHECK(uart_driver_install(uart_num, BUF_SIZE * 2, 0, 0, NULL, intr_alloc_flags));
+    ESP_ERROR_CHECK(uart_param_config(uart_num, &uart_config));
+    ESP_ERROR_CHECK(uart_set_pin(uart_num, tx, rx, ECHO_TEST_RTS, ECHO_TEST_CTS));
 
     // Configure a temporary buffer for the incoming data
     uint8_t *data = (uint8_t *) malloc(BUF_SIZE);
 
+    printf("UART%d started.\n", uart_num);
+
     while (1) {
         // Read data from the UART
-        int len = uart_read_bytes(ECHO_UART_PORT_NUM, data, BUF_SIZE, 20 / portTICK_RATE_MS);
-        // Write data back to the UART
-        uart_write_bytes(ECHO_UART_PORT_NUM, (const char *) data, len);
+        memset(data, 0, BUF_SIZE);
+        int len = uart_read_bytes(uart_num, data, BUF_SIZE, 20 / portTICK_RATE_MS);
+
+        if (len > 0) {
+            xSemaphoreTake(printf_Mutex, portMAX_DELAY);
+            printf("UART%d: (%d bytes)\n", uart_num, len);
+            print_hex(data, len);
+            printf("\n");
+            xSemaphoreGive(printf_Mutex);
+        }
     }
 }
 
 void app_main(void)
 {
-    xTaskCreate(echo_task, "uart_echo_task", ECHO_TASK_STACK_SIZE, NULL, 10, NULL);
+    int uart1 = UART_NUM_1, uart2 = UART_NUM_2;
+
+    printf_Mutex = xSemaphoreCreateMutex();
+
+    xTaskCreate(echo_task, "uart_echo_task1", ECHO_TASK_STACK_SIZE, &uart1, 10, NULL);
+    xTaskCreate(echo_task, "uart_echo_task2", ECHO_TASK_STACK_SIZE, &uart2, 10, NULL);
+
 }
