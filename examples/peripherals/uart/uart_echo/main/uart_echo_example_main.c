@@ -87,8 +87,8 @@ static void echo_task(void *arg)
         tx = 26;
         rx = 27;
     } else {
-        tx = 16;
-        rx = 17;
+        tx = 19;
+        rx = 22;
     }
 
     /* Configure parameters of an UART driver,
@@ -117,7 +117,7 @@ static void echo_task(void *arg)
     printf("UART%d started.\n", uart_num);
 
     while (1) {
-        if (change_mode_request) {
+        if (uart_num == 1 && change_mode_request) {
             printf("Change mode requested.\n");
             change_mode_request = false;
         }
@@ -152,5 +152,5 @@ void app_main(void)
 
     printf_lock = xSemaphoreCreateMutex();
     xTaskCreate(echo_task, "uart_echo_task1", ECHO_TASK_STACK_SIZE, &uart1, 9, NULL);
-    // xTaskCreate(echo_task, "uart_echo_task2", ECHO_TASK_STACK_SIZE, &uart2, 10, NULL);
+    xTaskCreate(echo_task, "uart_echo_task2", ECHO_TASK_STACK_SIZE, &uart2, 10, NULL);
 }
