@@ -118,7 +118,7 @@ static void echo_task(void *arg)
 
     while (1) {
         if (uart_num == 1 && change_mode_request) {
-            printf("Change mode requested.\n");
+            printf("Change mode requested from UART%d\n", uart_num);
             change_mode_request = false;
         }
 
