@@ -43,10 +43,9 @@ static int count = 0;
 
 #define CHANGE_MODE_PIN 14
 
-
 #define BUF_SIZE (1024)
 
-SemaphoreHandle_t printf_Mutex;
+SemaphoreHandle_t printf_lock;
 
 int64_t change_mode_request_time = 0;
 bool    change_mode_request = false;
@@ -131,11 +130,11 @@ static void echo_task(void *arg)
         int len = uart_read_bytes(uart_num, data, BUF_SIZE, 20 / portTICK_RATE_MS);
 
         if (len > 0) {
-            xSemaphoreTake(printf_Mutex, portMAX_DELAY);
+            xSemaphoreTake(printf_lock, portMAX_DELAY);
             printf("UART%d: (%d bytes)\n", uart_num, len);
             print_hex(data, len);
             printf("\n");
-            xSemaphoreGive(printf_Mutex);
+            xSemaphoreGive(printf_lock);
         }
     }
 }
