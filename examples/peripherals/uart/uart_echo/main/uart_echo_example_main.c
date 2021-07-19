@@ -154,7 +154,8 @@ void app_main(void)
     gpio_isr_handler_add(CHANGE_MODE_PIN, gpio_isr_handler, (void*) CHANGE_MODE_PIN);
 
     int uart1 = UART_NUM_1, uart2 = UART_NUM_2;
-    printf_Mutex = xSemaphoreCreateMutex();
+
+    printf_lock = xSemaphoreCreateMutex();
     xTaskCreate(echo_task, "uart_echo_task1", ECHO_TASK_STACK_SIZE, &uart1, 10, NULL);
     xTaskCreate(echo_task, "uart_echo_task2", ECHO_TASK_STACK_SIZE, &uart2, 20, NULL);
 }
