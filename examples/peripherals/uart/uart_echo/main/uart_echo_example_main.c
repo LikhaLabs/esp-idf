@@ -34,8 +34,7 @@
 #define ECHO_UART_BAUD_RATE     921600
 #define ECHO_TASK_STACK_SIZE    (CONFIG_EXAMPLE_TASK_STACK_SIZE)
 
-static int count = 0;
-
+static int uart1 = UART_NUM_1, uart2 = UART_NUM_2;
 // #define UART1_TX_PIN    26
 // #define UART1_RX_PIN    27
 
@@ -55,7 +54,7 @@ static void IRAM_ATTR gpio_isr_handler(void* arg)
 {
     int64_t time_elapsed = esp_timer_get_time() - change_mode_request_time;
 
-    if(time_elapsed > 170000) {
+    if(time_elapsed > 200000) {
         change_mode_request_time = esp_timer_get_time();
         change_mode_request = true;
     }
@@ -118,12 +117,9 @@ static void echo_task(void *arg)
     printf("UART%d started.\n", uart_num);
 
     while (1) {
-
-        printf("change not requested!\n");
         if (change_mode_request) {
-            printf("change requested!\n");
+            printf("Change mode requested.\n");
             change_mode_request = false;
-
         }
 
         // Read data from the UART
@@ -153,9 +149,8 @@ void app_main(void)
     gpio_install_isr_service(0);
     gpio_isr_handler_add(CHANGE_MODE_PIN, gpio_isr_handler, (void*) CHANGE_MODE_PIN);
 
-    int uart1 = UART_NUM_1, uart2 = UART_NUM_2;
 
     printf_lock = xSemaphoreCreateMutex();
-    xTaskCreate(echo_task, "uart_echo_task1", ECHO_TASK_STACK_SIZE, &uart1, 10, NULL);
-    xTaskCreate(echo_task, "uart_echo_task2", ECHO_TASK_STACK_SIZE, &uart2, 20, NULL);
+    xTaskCreate(echo_task, "uart_echo_task1", ECHO_TASK_STACK_SIZE, &uart1, 9, NULL);
+    // xTaskCreate(echo_task, "uart_echo_task2", ECHO_TASK_STACK_SIZE, &uart2, 10, NULL);
 }
