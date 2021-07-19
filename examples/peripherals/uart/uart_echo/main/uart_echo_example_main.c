@@ -36,6 +36,13 @@
 
 SemaphoreHandle_t printf_Mutex;
 
+
+typedef enum {
+    MONITOR,
+    UART1_SEND,
+    UART2_SEND,
+} app_mode_t;
+
 void print_hex(const uint8_t* buf, int len)
 {
     int i;
@@ -87,6 +94,7 @@ static void echo_task(void *arg)
     printf("UART%d started.\n", uart_num);
 
     while (1) {
+
         // Read data from the UART
         memset(data, 0, BUF_SIZE);
         int len = uart_read_bytes(uart_num, data, BUF_SIZE, 20 / portTICK_RATE_MS);
@@ -108,6 +116,6 @@ void app_main(void)
     printf_Mutex = xSemaphoreCreateMutex();
 
     xTaskCreate(echo_task, "uart_echo_task1", ECHO_TASK_STACK_SIZE, &uart1, 10, NULL);
-    xTaskCreate(echo_task, "uart_echo_task2", ECHO_TASK_STACK_SIZE, &uart2, 10, NULL);
+    xTaskCreate(echo_task, "uart_echo_task2", ECHO_TASK_STACK_SIZE, &uart2, 20, NULL);
 
 }
