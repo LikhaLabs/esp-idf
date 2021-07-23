@@ -15,7 +15,8 @@
 /* Can use project configuration menu (idf.py menuconfig) to choose the GPIO to blink,
    or you can edit the following line and set a number here.
 */
-#define BLINK_GPIO CONFIG_BLINK_GPIO
+#define BOTTOM 16
+#define TOP    4
 
 void app_main(void)
 {
@@ -25,17 +26,37 @@ void app_main(void)
        Technical Reference for a list of pads and their default
        functions.)
     */
-    gpio_reset_pin(BLINK_GPIO);
+    gpio_reset_pin(BOTTOM);
+    gpio_reset_pin(TOP);
     /* Set the GPIO as a push/pull output */
-    gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
+    gpio_set_direction(BOTTOM, GPIO_MODE_OUTPUT);
+    gpio_set_direction(TOP, GPIO_MODE_OUTPUT);
+
+    int count = 0;
+
+    gpio_set_level(TOP, 1);
+    gpio_set_level(BOTTOM, 1);
+
+    while(true) {
+        vTaskDelay(100);
+    }
+
     while(1) {
         /* Blink off (output low) */
         printf("Turning off the LED\n");
-        gpio_set_level(BLINK_GPIO, 0);
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        gpio_set_level(BOTTOM, 0);
+        if(count % 2 == 0) {
+            gpio_set_level(TOP, 0);
+        }
+        vTaskDelay(20 / portTICK_PERIOD_MS);
         /* Blink on (output high) */
         printf("Turning on the LED\n");
-        gpio_set_level(BLINK_GPIO, 1);
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        gpio_set_level(BOTTOM, 1);
+        if(count % 2 == 0) {
+            gpio_set_level(TOP, 1);
+        }
+        vTaskDelay(20 / portTICK_PERIOD_MS);
+
+        count++;
     }
 }
