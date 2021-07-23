@@ -31,7 +31,7 @@
 #define ECHO_TEST_RTS (UART_PIN_NO_CHANGE)
 #define ECHO_TEST_CTS (UART_PIN_NO_CHANGE)
 
-#define ECHO_UART_BAUD_RATE     921600
+#define ECHO_UART_BAUD_RATE     115200
 #define ECHO_TASK_STACK_SIZE    (CONFIG_EXAMPLE_TASK_STACK_SIZE)
 
 static int uart1 = UART_NUM_1, uart2 = UART_NUM_2;
@@ -87,8 +87,8 @@ static void echo_task(void *arg)
         tx = 26;
         rx = 27;
     } else {
-        tx = 19;
-        rx = 22;
+        tx = 16;
+        rx = 17;
     }
 
     /* Configure parameters of an UART driver,
@@ -109,6 +109,7 @@ static void echo_task(void *arg)
 
     ESP_ERROR_CHECK(uart_driver_install(uart_num, BUF_SIZE * 2, 0, 0, NULL, intr_alloc_flags));
     ESP_ERROR_CHECK(uart_param_config(uart_num, &uart_config));
+
     ESP_ERROR_CHECK(uart_set_pin(uart_num, tx, rx, ECHO_TEST_RTS, ECHO_TEST_CTS));
 
     // Configure a temporary buffer for the incoming data
@@ -117,11 +118,6 @@ static void echo_task(void *arg)
     printf("UART%d started.\n", uart_num);
 
     while (1) {
-        if (uart_num == 1 && change_mode_request) {
-            printf("Change mode requested from UART%d\n", uart_num);
-            change_mode_request = false;
-        }
-
         // Read data from the UART
         memset(data, 0, BUF_SIZE);
         int len = uart_read_bytes(uart_num, data, BUF_SIZE, 20 / portTICK_RATE_MS);
