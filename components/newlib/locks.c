@@ -400,9 +400,9 @@ void esp_newlib_locks_init(void)
      */
     extern void esp_rom_newlib_init_common_mutexes(_LOCK_T, _LOCK_T);
     /* See notes about ROM_NEEDS_MUTEX_OVERRIDE above */
-    int magic_val = ROM_MUTEX_MAGIC;
-    _LOCK_T magic_mutex = (_LOCK_T) &magic_val;
-    esp_rom_newlib_init_common_mutexes(magic_mutex, magic_mutex);
+    // int magic_val = ROM_MUTEX_MAGIC;
+    // _LOCK_T magic_mutex = (_LOCK_T) &magic_val;
+    // esp_rom_newlib_init_common_mutexes(magic_mutex, magic_mutex);
 #else // other target
 #error Unsupported target
 #endif
