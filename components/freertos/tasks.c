@@ -5662,6 +5662,32 @@ TickType_t uxReturn;
 #endif /* configUSE_TASK_NOTIFICATIONS */
 /*-----------------------------------------------------------*/
 
+#if( configUSE_TASK_NOTIFICATIONS == 1 )
+
+	uint32_t ulTaskNotifyValueClear( TaskHandle_t xTask, uint32_t ulBitsToClear )
+	{
+	TCB_t *pxTCB;
+	uint32_t ulReturn;
+
+		/* If null is passed in here then it is the calling task that is having
+		its notification state cleared. */
+		pxTCB = prvGetTCBFromHandle( xTask );
+
+		taskENTER_CRITICAL( &xTaskQueueMutex );
+		{
+			/* Return the notification as it was before the bits were cleared,
+			then clear the bit mask. */
+			ulReturn = pxCurrentTCB[xPortGetCoreID()]->ulNotifiedValue;
+			pxTCB->ulNotifiedValue &= ~ulBitsToClear;
+		}
+		taskEXIT_CRITICAL( &xTaskQueueMutex );
+
+		return ulReturn;
+	}
+
+#endif /* configUSE_TASK_NOTIFICATIONS */
+/*-----------------------------------------------------------*/
+
 #if( ( configGENERATE_RUN_TIME_STATS == 1 ) && ( INCLUDE_xTaskGetIdleTaskHandle == 1 ) )
 
 	uint32_t ulTaskGetIdleRunTimeCounter( void )

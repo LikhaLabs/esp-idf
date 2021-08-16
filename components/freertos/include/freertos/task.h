@@ -2274,6 +2274,24 @@ uint32_t ulTaskNotifyTake( BaseType_t xClearCountOnExit, TickType_t xTicksToWait
  */
 BaseType_t xTaskNotifyStateClear( TaskHandle_t xTask );
 
+/**
+* task. h
+* <PRE>uint32_t ulTaskNotifyValueClear( TaskHandle_t xTask, uint32_t ulBitsToClear );</pre>
+*
+* Clears the bits specified by the ulBitsToClear bit mask in the notification
+* value of the task referenced by xTask.
+*
+* Set ulBitsToClear to 0xffffffff (UINT_MAX on 32-bit architectures) to clear
+* the notification value to 0.  Set ulBitsToClear to 0 to query the task's
+* notification value without clearing any bits.
+*
+* @return The value of the target task's notification value before the bits
+* specified by ulBitsToClear were cleared.
+* \defgroup ulTaskNotifyValueClear ulTaskNotifyValueClear
+* \ingroup TaskNotifications
+*/
+uint32_t ulTaskNotifyValueClear( TaskHandle_t xTask, uint32_t ulBitsToClear ) PRIVILEGED_FUNCTION;
+
 /*-----------------------------------------------------------
  * SCHEDULER INTERNALS AVAILABLE FOR PORTING PURPOSES
  *----------------------------------------------------------*/
