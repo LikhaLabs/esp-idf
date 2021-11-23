@@ -88,6 +88,22 @@ int usb_serial_jtag_write_bytes(const void* src, size_t size, TickType_t ticks_t
  */
 esp_err_t usb_serial_jtag_driver_uninstall(void);
 
+/**
+ * @brief Get the number of bytes in the read buffer.
+ *
+ * @return
+ *      - Bytes available to receive in the read buffer.
+ */
+int usb_serial_jtag_read_available();
+
+/**
+ * @brief Get the space in the buffer available for writing.
+ *
+ * @return 
+ *      - Bytes left in the write buffer.
+ */
+int usb_serial_jtag_write_available();
+
 #ifdef __cplusplus
 }
 #endif

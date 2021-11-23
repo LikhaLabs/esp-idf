@@ -196,3 +196,13 @@ esp_err_t usb_serial_jtag_driver_uninstall(void)
     p_usb_serial_jtag_obj = NULL;
     return ESP_OK;
 }
+
+int usb_serial_jtag_read_available()
+{
+    return (p_usb_serial_jtag_obj->rx_buf_size - xRingbufferGetCurFreeSize(p_usb_serial_jtag_obj->rx_ring_buf));
+}
+
+int usb_serial_jtag_write_available()
+{
+    return xRingbufferGetCurFreeSize(p_usb_serial_jtag_obj->tx_ring_buf);
+}
