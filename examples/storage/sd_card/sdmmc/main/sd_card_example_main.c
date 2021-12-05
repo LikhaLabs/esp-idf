@@ -48,6 +48,9 @@ void app_main(void)
     ESP_LOGI(TAG, "Using SDMMC peripheral");
     sdmmc_host_t host = SDMMC_HOST_DEFAULT();
 
+    host.max_freq_khz = SDMMC_FREQ_HIGHSPEED;
+    host.flags = SDMMC_HOST_FLAG_4BIT;
+
     // This initializes the slot without card detect (CD) and write protect (WP) signals.
     // Modify slot_config.gpio_cd and slot_config.gpio_wp if your board has these signals.
     sdmmc_slot_config_t slot_config = SDMMC_SLOT_CONFIG_DEFAULT();
@@ -58,12 +61,19 @@ void app_main(void)
     // On chips where the GPIOs used for SD card can be configured, set them in
     // the slot_config structure:
 #ifdef SOC_SDMMC_USE_GPIO_MATRIX
-    slot_config.clk = GPIO_NUM_14;
-    slot_config.cmd = GPIO_NUM_15;
-    slot_config.d0 = GPIO_NUM_2;
-    slot_config.d1 = GPIO_NUM_4;
-    slot_config.d2 = GPIO_NUM_12;
-    slot_config.d3 = GPIO_NUM_13;
+    #define PIN_NUM_DAT0   GPIO_NUM_13
+    #define PIN_NUM_DAT1   GPIO_NUM_14
+    #define PIN_NUM_DAT2   GPIO_NUM_9
+    #define PIN_NUM_DAT3   GPIO_NUM_10
+    #define PIN_NUM_CMD    GPIO_NUM_11
+    #define PIN_NUM_CLK    GPIO_NUM_12
+
+    slot_config.clk = PIN_NUM_CLK;
+    slot_config.cmd = PIN_NUM_CMD;
+    slot_config.d0 = PIN_NUM_DAT0;
+    slot_config.d1 = PIN_NUM_DAT1;
+    slot_config.d2 = PIN_NUM_DAT2;
+    slot_config.d3 = PIN_NUM_DAT3;
 #endif
 
     // Enable internal pullups on enabled pins. The internal pullups

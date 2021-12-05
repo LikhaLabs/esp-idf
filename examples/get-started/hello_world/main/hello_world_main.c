@@ -12,10 +12,15 @@
 #include "freertos/task.h"
 #include "esp_system.h"
 #include "esp_spi_flash.h"
+#include "driver/gpio.h"
 
 void app_main(void)
 {
     printf("Hello world!\n");
+
+    gpio_reset_pin(8);
+    gpio_set_direction(8, GPIO_MODE_OUTPUT);
+    gpio_set_level(8, 1);
 
     /* Print chip information */
     esp_chip_info_t chip_info;
@@ -39,5 +44,5 @@ void app_main(void)
     }
     printf("Restarting now.\n");
     fflush(stdout);
-    esp_restart();
+    // esp_restart();
 }
